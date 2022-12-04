@@ -10,6 +10,7 @@ var getUserById = require("./routes/getUserById");
 var s3GetAllObjectsRouter = require("./routes/s3GetAllObjects");
 var postImageToDb = require("./routes/postImageToDb");
 var postImageToS3 = require("./routes/postImageToS3");
+var cors = require('cors')
 var app = express();
 var PrismaClient = require("@prisma/client").PrismaClient;
 // view engine setup
@@ -33,6 +34,7 @@ s3 = new AWS.S3({ apiVersion: "2006-03-01" });
 var bucketParams = {
   Bucket: process.env.AWS_BUCKET_NAME,
 };
+app.use(cors())
 
 app.use(logger("dev"));
 app.use(express.json());
