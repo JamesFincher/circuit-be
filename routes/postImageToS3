@@ -1,0 +1,71 @@
+var express = require("express");
+var router = express.Router();
+var AWS = require("aws-sdk");
+const { PrismaClient } = require("@prisma/client");
+const prisma = new PrismaClient();
+
+const postToDb = async ({ name, url, userId }) => {
+  try {
+    const newImage = await prisma.s3Images.create({
+      data: {
+        name: name,
+        url: url,
+        userId: "clb8pcio50000jv08b96nuc8y",
+        // userId: image.userId,
+      },
+    });
+    console.log(newImage);
+    return newImage;
+  } catch (error) {
+    console.error(error);
+    return error;
+  }
+};
+
+const app = require("../app");
+//Aws Config
+AWS.config.update({
+  accessKeyId: process.env.AWS_KEY,
+  secretAccessKey: process.env.AWS_SECRET,
+  region: process.env.AWS_REGION,
+});
+
+// Create S3 service object
+s3 = new AWS.S3({ apiVersion: "2006-03-01" });
+
+//Prisma Config
+
+router.post("/", async function (req, res, next) {
+  image = req.body;
+
+  // Create the parameters for calling listObjects
+  var bucketParams = {
+    Bucket: process.env.AWS_BUCKET_NAME,
+  };
+  //Call S3 to upload the file to the bucket
+  await s3
+    .upload({
+      Bucket: process.env.AWS_BUCKET_NAME,
+      Key: `${Math.random().toString(36).substring(2, 15)}.png`,
+      Body: image,
+    })
+    .promise()
+    .then((data) => {
+      res.dbImage = {
+        name: data.ETag,
+        url: data.Location,
+        userId: "clb8pcio50000jv08b96nuc8y",
+      };
+      postToDb(res.dbImage);
+      res.status(200).json(data);
+    })
+    .then((data) => {
+      res.json(data);
+      console.log("Success", data, res.dbImage);
+    })
+    .catch((err) => {
+      console.log(err);
+    });
+});
+
+module.exports = router;
