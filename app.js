@@ -10,6 +10,7 @@ var getUserById = require("./routes/getUserById");
 var s3GetAllObjectsRouter = require("./routes/s3GetAllObjects");
 var postImageToDb = require("./routes/postImageToDb");
 var postImageToS3 = require("./routes/postImageToS3");
+var getAllImagesFromDb = require("./routes/getAllImagesFromDb");
 var cors = require('cors')
 var app = express();
 var PrismaClient = require("@prisma/client").PrismaClient;
@@ -48,6 +49,8 @@ app.use("/aws/all", s3GetAllObjectsRouter);
 app.use("/local/getUserById", getUserById);
 app.use("/local/postImageToDb", postImageToDb);
 app.use("/aws/postImageToS3", postImageToS3);
+app.use("/local/getAllImagesFromDb", getAllImagesFromDb);
+
 
 // catch 404 and forward to error handler
 app.use(function (req, res, next) {
